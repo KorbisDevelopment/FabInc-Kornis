@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-primary-cyan: #00e5ff;
+  --color-on-primary-cyan: #00363d;
+  --color-surface-dark: #10141a;
+  --color-surface-container: #1c2026;
+  --color-surface-container-low: #181c22;
+  --color-surface-container-lowest: #0a0e14;
+  --color-surface-container-high: #262a31;
+  --color-surface-container-highest: #31353c;
+  --color-outline-variant: #3b494c;
+  --color-on-surface: #dfe2eb;
+  --color-on-surface-variant: #bac9cc;
+  --color-error-red: #ffb4ab;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-surface-dark);
+    color: var(--color-on-surface);
+    font-family: var(--font-mono);
+  }
+
+  button, a {
+    cursor: pointer;
+  }
+}
+
+.tactile-btn {
+  @apply active:translate-y-0.5 active:border-b-0 transition-all cursor-pointer;
+}
+
+.interactive-card {
+  @apply hover:border-primary-cyan hover:bg-primary-cyan/5 transition-all cursor-pointer;
+}
+
+.static-noise {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAAD/9zSrAAAALVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB/TPlCAAAADnRSTlMAmZlmZpmZmZlmZpmZmVYv9V4AAABlSURBVDjH7dKxCQAxDEPRX92/V7CD4N79T6EqSOHM8Z7AcCH9h1SAnB99X3p/Wj9E5EFEnkYURUREFEREREFERUREREREREREREREREREREREREREREREFERRFERRFERRFERRFERRFERVv9e+L0d4D4ePZ6nLAAAAAElFTkSuQmCC');
+  opacity: 0.15;
+  animation: static-noise 0.2s steps(4) infinite;
+}
+
+@keyframes static-noise {
+  0% { transform: translate(0,0) }
+  25% { transform: translate(5px, 5px) }
+  50% { transform: translate(-5px, 10px) }
+  75% { transform: translate(-10px, -5px) }
+  100% { transform: translate(5px, -10px) }
+}
+
+.rugged-overlay {
+  background: linear-gradient(rgba(10, 14, 20, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(0, 229, 255, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 100, 255, 0.04));
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+.rugged-texture {
+  background-image: radial-gradient(circle at 2px 2px, rgba(0, 229, 255, 0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+}

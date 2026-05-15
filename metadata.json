@@ -1,0 +1,6 @@
+{
+  "name": "Fab Inc",
+  "description": "Real-time remote expert support for fabrication jobsites with live video feeds and collaborative advice boards.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

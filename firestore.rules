@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Phase 3: Primitives
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function getUserData() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+
+    // Phase 4: Entity Validators
+    function isValidProject(data) {
+      return data.keys().hasAll(['name', 'accessCode']) && data.keys().size() == 2
+        && data.name is string && data.name.size() <= 100
+        && data.accessCode is string && data.accessCode.size() <= 20;
+    }
+
+    function isValidAdvice(data) {
+      return data.keys().hasAll(['projectId', 'identifier', 'text', 'importance', 'createdAt']) && data.keys().size() == 5
+        && data.projectId is string
+        && data.identifier is string && data.identifier.size() <= 50
+        && data.text is string && data.text.size() <= 1000
+        && data.importance in ['high', 'normal', 'low']
+        && data.createdAt is number;
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['projectId', 'sender', 'text', 'timestamp']) && data.keys().size() >= 4
+        && data.projectId is string
+        && data.sender is string && data.sender.size() <= 50
+        && data.text is string && data.text.size() <= 1000
+        && data.timestamp is number;
+    }
+
+    function isValidTelemetry(data) {
+      return data.keys().hasAll(['projectId', 'rpm', 'temp']) && data.keys().size() == 3
+        && data.projectId is string
+        && data.rpm is number
+        && data.temp is number;
+    }
+
+    function isValidCamera(data) {
+      return data.keys().hasAll(['projectId', 'label', 'streamId', 'isOnline']) && data.keys().size() >= 4
+        && data.projectId is string
+        && data.label is string && data.label.size() <= 100
+        && data.streamId is string && data.streamId.size() <= 100
+        && data.isOnline is bool;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['email', 'role']) && data.keys().size() >= 2
+        && data.email is string && data.email.size() <= 100
+        && data.role in ['operator', 'expert'];
+    }
+
+    // Match Blocks
+    match /projects/{projectId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only via admin console or specific logic if needed
+
+      match /advice/{adviceId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && isValidAdvice(request.resource.data) && getUserData().role == 'expert';
+        allow update: if isSignedIn() && isValidAdvice(request.resource.data) && getUserData().role == 'expert';
+        allow delete: if isSignedIn() && getUserData().role == 'expert';
+      }
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && isValidMessage(request.resource.data);
+      }
+
+      match /telemetry/{telId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && isValidTelemetry(request.resource.data);
+      }
+
+      match /cameras/{cameraId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() && isValidCamera(request.resource.data);
+      }
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || getUserData().role == 'expert');
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidUserProfile(request.resource.data);
+      allow update: if isSignedIn() && request.auth.uid == userId && isValidUserProfile(request.resource.data) 
+        && request.resource.data.role == resource.data.role; // Immutable role
+    }
+  }
+}

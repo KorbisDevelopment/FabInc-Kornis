@@ -1,0 +1,102 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A construction/fabrication project",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "accessCode": { "type": "string" }
+      },
+      "required": ["name", "accessCode"]
+    },
+    "Advice": {
+      "title": "Advice",
+      "description": "Expert instructions for labor",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "identifier": { "type": "string" },
+        "text": { "type": "string" },
+        "importance": { "enum": ["high", "normal", "low"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["projectId", "identifier", "text", "importance", "createdAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Chat message in the cockpit",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "sender": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "isSystem": { "type": "boolean" }
+      },
+      "required": ["projectId", "sender", "text", "timestamp"]
+    },
+    "Telemetry": {
+      "title": "Telemetry",
+      "description": "Real-time machine stats",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "rpm": { "type": "number" },
+        "temp": { "type": "number" }
+      },
+      "required": ["projectId", "rpm", "temp"]
+    },
+    "Camera": {
+      "title": "Camera",
+      "description": "A live video source",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "label": { "type": "string" },
+        "streamId": { "type": "string" },
+        "isOnline": { "type": "boolean" },
+        "isCritical": { "type": "boolean" },
+        "location": { "type": "string" }
+      },
+      "required": ["projectId", "label", "streamId", "isOnline"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User account info and role",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "enum": ["operator", "expert"] },
+        "projectId": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Root project documents"
+    },
+    "/projects/{projectId}/advice/{adviceId}": {
+      "schema": "Advice",
+      "description": "Labor instructions for a project"
+    },
+    "/projects/{projectId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Chat history for a project"
+    },
+    "/projects/{projectId}/telemetry/{projectId}": {
+      "schema": "Telemetry",
+      "description": "Real-time telemetry for a project"
+    },
+    "/projects/{projectId}/cameras/{cameraId}": {
+      "schema": "Camera",
+      "description": "Camera feeds for a project"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles"
+    }
+  }
+}
